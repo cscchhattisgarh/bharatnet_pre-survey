@@ -162,7 +162,7 @@
         <input type="text" id="cscId" placeholder="e.g. 538426020012" maxlength="12" oninput="onCscInput(this)" required>
         <div id="cscCounter" class="counter-text">0 / 12 digits</div>
       </div>
-      <button type="button" id="verifyBtn" class="btn" onclick="verifyCscId()">Load Mapped Locations & Verify</button>
+      <button type="button" id="verifyBtn" class="btn" onclick="verifyCscId()">View Mapped Panchayat & Start Survey</button>
       <div id="loginError" class="alert-msg hidden"></div>
     </div>
 
@@ -172,6 +172,11 @@
       <!-- SURVEYOR PROFILE SECTION (Auto-filled & Editable) -->
       <div class="section section-surveyor">
         <h3>👤 Surveyor Profile</h3>
+        
+          <div class="form-group">
+          <label for="displayCscId">CSC ID (Verified)</label>
+          <input type="text" id="displayCscId" readonly>
+        </div>
 
         <div class="form-group">
           <label for="vleName">VLE Name * (Editable)</label>
@@ -390,6 +395,7 @@
       }
 
       // Populate VLE Details
+      document.getElementById("displayCscId").value = cscVal;
       document.getElementById("vleName").value = data.vleName;
       document.getElementById("mobileNumber").value = data.vleMobile;
       vleMappings = data.mappings;
