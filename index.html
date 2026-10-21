@@ -81,6 +81,7 @@
     }
 
     input[readonly] { background-color: #f8fafc; color: #64748b; cursor: not-allowed; border-style: dashed; }
+    .counter-text { font-size: 11px; color: var(--text-muted); text-align: right; margin-top: 4px; font-weight: 600; }
 
     .gps-box {
       background: #f8fafc;
@@ -118,7 +119,7 @@
       color: white;
       font-weight: 700;
       padding: 14px;
-      border: none;
+      border: None;
       border-radius: 10px;
       font-size: 15px;
       cursor: pointer;
@@ -132,7 +133,6 @@
     .btn-submit:hover { background-color: #047857; }
     .btn:disabled { background-color: #94a3b8; cursor: not-allowed; box-shadow: none; }
 
-    .loading-text { text-align: center; color: var(--text-muted); font-weight: 600; padding: 30px 0; font-size: 15px; }
     .alert-msg { color: var(--error); text-align: center; font-weight: 600; margin: 20px 0; padding: 14px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; font-size: 13.5px; }
 
     .thank-you-card { text-align: center; padding: 50px 20px; animation: fadeIn 0.4s ease-in-out; }
@@ -154,70 +154,79 @@
   </div>
 
   <div class="card-body">
-    <div id="loader" class="loading-text">⚡ Loading Data Instantly...</div>
+    
+    <!-- STEP 1: CSC ID VERIFICATION LOGIN -->
+    <div id="cscLoginSection">
+      <div class="form-group">
+        <label for="cscId">Enter CSC ID * (12 Digits)</label>
+        <input type="text" id="cscId" placeholder="e.g. 538426020012" maxlength="12" oninput="onCscInput(this)" required>
+        <div id="cscCounter" class="counter-text">0 / 12 digits</div>
+      </div>
+      <button type="button" id="verifyBtn" class="btn" onclick="verifyCscId()">Load Mapped Locations & Verify</button>
+      <div id="loginError" class="alert-msg hidden"></div>
+    </div>
 
-    <!-- SINGLE STEP MAIN FORM -->
+    <!-- MAIN SURVEY FORM (Hidden initially until CSC verified) -->
     <form id="mainSurveyForm" class="hidden" onsubmit="submitSurvey(event)">
       
-      <!-- 1. LOCATION SELECTION -->
-      <div class="form-group">
-        <label for="districtSelect">1. Select District *</label>
-        <select id="districtSelect" onchange="onDistrictChange()" required>
-          <option value="">-- Choose District --</option>
-        </select>
+      <!-- SURVEYOR PROFILE SECTION (Auto-filled & Editable) -->
+      <div class="section section-surveyor">
+        <h3>👤 Surveyor Profile</h3>
+
+        <div class="form-group">
+          <label for="vleName">VLE Name * (Editable)</label>
+          <input type="text" id="vleName" placeholder="ENTER FULL NAME" oninput="validateNameInput(this)" required>
+        </div>
+
+        <div class="form-group">
+          <label for="mobileNumber">Mobile Number * (Editable)</label>
+          <input type="tel" id="mobileNumber" placeholder="Enter 10-digit Mobile Number" maxlength="10" oninput="validateMobileInput(this)" required>
+        </div>
+
+        <div class="form-group">
+          <label for="emailId">Email ID *</label>
+          <input type="email" id="emailId" placeholder="example@domain.com" required>
+        </div>
+
+        <div class="gps-box">
+          <div class="gps-status" id="gpsStatus">📍 Capturing GPS Location...</div>
+          <div class="gps-coords">
+            <input type="text" id="latitude" placeholder="Latitude" readonly required>
+            <input type="text" id="longitude" placeholder="Longitude" readonly required>
+          </div>
+        </div>
       </div>
 
-      <div class="form-group hidden" id="blockDiv">
-        <label for="blockSelect">2. Select Block *</label>
-        <select id="blockSelect" onchange="onBlockChange()" required>
-          <option value="">-- Choose Block --</option>
-        </select>
-      </div>
+      <!-- LOCATION SELECTION (Filtered by VLE Mapping) -->
+      <div class="section" style="background:#f8fafc; border-left-color:#2563eb;">
+        <h3>📍 Select Mapped Location</h3>
 
-      <div class="form-group hidden" id="gpDiv">
-        <label for="gpSelect">3. Select Gram Panchayat *</label>
-        <select id="gpSelect" onchange="onGPChange()" required>
-          <option value="">-- Choose Gram Panchayat --</option>
-        </select>
+        <div class="form-group">
+          <label for="districtSelect">1. District *</label>
+          <select id="districtSelect" onchange="onDistrictChange()" required>
+            <option value="">-- Choose District --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="blockSelect">2. Block *</label>
+          <select id="blockSelect" onchange="onBlockChange()" required>
+            <option value="">-- Choose Block --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="gpSelect">3. Gram Panchayat *</label>
+          <select id="gpSelect" onchange="onGPChange()" required>
+            <option value="">-- Choose Gram Panchayat --</option>
+          </select>
+        </div>
       </div>
 
       <!-- DYNAMIC QUESTION CONTENT CONTAINER -->
       <div id="dynamicContent" class="hidden">
         
-        <!-- 2. SURVEYOR PROFILE SECTION -->
-        <div class="section section-surveyor">
-          <h3>👤 Surveyor Profile & Verification</h3>
-
-          <div class="form-group">
-            <label for="cscId">CSC ID * (12 digits, e.g. 538426020012)</label>
-            <input type="text" id="cscId" placeholder="e.g. 538426020012" maxlength="12" oninput="validateCscInput(this)" required>
-          </div>
-
-          <div class="form-group">
-            <label for="vleName">VLE Name * (Text Only)</label>
-            <input type="text" id="vleName" placeholder="ENTER FULL NAME" oninput="validateNameInput(this)" required>
-          </div>
-
-          <div class="form-group">
-            <label for="mobileNumber">Mobile Number * (10 Digits)</label>
-            <input type="tel" id="mobileNumber" placeholder="Enter 10-digit Mobile Number" maxlength="10" oninput="validateMobileInput(this)" required>
-          </div>
-
-          <div class="form-group">
-            <label for="emailId">Email ID *</label>
-            <input type="email" id="emailId" placeholder="example@domain.com" required>
-          </div>
-
-          <div class="gps-box">
-            <div class="gps-status" id="gpsStatus">📍 Capturing GPS Location...</div>
-            <div class="gps-coords">
-              <input type="text" id="latitude" placeholder="Latitude" readonly required>
-              <input type="text" id="longitude" placeholder="Longitude" readonly required>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. SEPARATE GPON SURVEY SECTION -->
+        <!-- SEPARATE GPON SURVEY SECTION -->
         <div id="gponSection" class="section section-gpon hidden">
           <h3>🖥️ GPON Survey</h3>
           <div class="form-group">
@@ -230,7 +239,7 @@
           </div>
         </div>
 
-        <!-- 4. ACCESS POINT SURVEY QUESTIONS SECTION -->
+        <!-- ACCESS POINT SURVEY QUESTIONS SECTION -->
         <div id="apSection" class="section hidden">
           <h3>📡 Access Point Survey</h3>
           
@@ -280,7 +289,7 @@
           </div>
         </div>
 
-        <!-- 5. FTTH ROUTER SURVEY QUESTIONS SECTION -->
+        <!-- FTTH ROUTER SURVEY QUESTIONS SECTION -->
         <div id="ftthSection" class="section section-ftth hidden">
           <h3>🌐 FTTH Router Survey</h3>
           <div id="ftthSubscribersList"></div>
@@ -294,7 +303,7 @@
       </div>
     </form>
 
-    <!-- THANK YOU SCREEN (WITHOUT START NEW SURVEY BUTTON) -->
+    <!-- THANK YOU SCREEN -->
     <div id="thankYouScreen" class="thank-you-card hidden">
       <div class="icon-circle">✓</div>
       <h2>Thank You</h2>
@@ -307,52 +316,24 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbw55CJD1BAA5CswdWqZL-ktCWP9mHcLsN2pu5Ppq6ii0jIKLXaGTkmY7n7UtGT7OLWiGg/exec";
 
   let masterData = [];
+  let vleMappings = [];
   let selectedGPData = null;
 
   window.onload = function() {
     captureGPS();
-    
-    const localMaster = localStorage.getItem("survey_master_v2");
-    if (localMaster) {
-      masterData = JSON.parse(localMaster);
-      initApp();
-      fetchMaster(true);
-    } else {
-      fetchMaster(false);
-    }
-  };
-
-  function fetchMaster(isBg) {
+    // Pre-fetch master data in background
     fetch(API_URL + "?action=getMasters")
       .then(res => res.json())
-      .then(data => {
-        masterData = data;
-        localStorage.setItem("survey_master_v2", JSON.stringify(data));
-        if (!isBg) initApp();
-      })
-      .catch(err => {
-        if (!isBg && masterData.length === 0) {
-          document.getElementById("loader").innerText = "❌ Connection slow. Please tap refresh.";
-        }
-      });
+      .then(data => { masterData = data; })
+      .catch(err => {});
+  };
+
+  function onCscInput(input) {
+    input.value = input.value.replace(/[^0-9]/g, '');
+    let len = input.value.length;
+    document.getElementById("cscCounter").innerText = len + " / 12 digits";
   }
 
-  function initApp() {
-    document.getElementById("loader").classList.add("hidden");
-    document.getElementById("mainSurveyForm").classList.remove("hidden");
-    populateDistricts();
-  }
-
-  function getVal(row, keyPrefix) {
-    if (!row) return "";
-    const cleanPrefix = keyPrefix.toLowerCase().trim();
-    for (let k in row) {
-      if (k.toLowerCase().trim() === cleanPrefix) return row[k];
-    }
-    return "";
-  }
-
-  function validateCscInput(input) { input.value = input.value.replace(/[^0-9]/g, ''); }
   function validateNameInput(input) { input.value = input.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase(); }
   function validateMobileInput(input) { input.value = input.value.replace(/[^0-9]/g, ''); }
 
@@ -375,8 +356,61 @@
     }
   }
 
+  async function verifyCscId() {
+    const cscVal = document.getElementById("cscId").value;
+    const errDiv = document.getElementById("loginError");
+    errDiv.classList.add("hidden");
+
+    // Validation: 12 digits, 9th & 10th='0', 11th='1'
+    if (cscVal.length !== 12) {
+      errDiv.innerText = "⚠️ CSC ID must be exactly 12 digits.";
+      errDiv.classList.remove("hidden");
+      return;
+    }
+    if (cscVal.charAt(8) !== '0' || cscVal.charAt(9) !== '0' || cscVal.charAt(10) !== '1') {
+      errDiv.innerText = "⚠️ Invalid CSC ID pattern (9th & 10th must be '0' and 11th must be '1').";
+      errDiv.classList.remove("hidden");
+      return;
+    }
+
+    const btn = document.getElementById("verifyBtn");
+    btn.innerText = "Verifying CSC ID...";
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(API_URL + "?action=getVleDetails&cscId=" + encodeURIComponent(cscVal));
+      const data = await res.json();
+
+      if (!data.success) {
+        errDiv.innerText = "⚠️ आपने प्रशिक्षण नहीं लिया है या यह CSC ID अधिकृत नहीं है। कृपया जिला प्रबंधक से संपर्क करें।";
+        errDiv.classList.remove("hidden");
+        btn.innerText = "Load Mapped Locations & Verify";
+        btn.disabled = false;
+        return;
+      }
+
+      // Populate VLE Details
+      document.getElementById("vleName").value = data.vleName;
+      document.getElementById("mobileNumber").value = data.vleMobile;
+      vleMappings = data.mappings;
+
+      // Hide login section, show main form
+      document.getElementById("cscLoginSection").classList.add("hidden");
+      document.getElementById("mainSurveyForm").classList.remove("hidden");
+
+      // Populate Districts from VLE Mappings
+      populateDistricts();
+
+    } catch (err) {
+      errDiv.innerText = "❌ Connection Error. Please try again.";
+      errDiv.classList.remove("hidden");
+      btn.innerText = "Load Mapped Locations & Verify";
+      btn.disabled = false;
+    }
+  }
+
   function populateDistricts() {
-    const districts = [...new Set(masterData.map(i => String(getVal(i, "DISTRICT")).trim()))].filter(Boolean);
+    const districts = [...new Set(vleMappings.map(i => i.district))].filter(Boolean);
     const select = document.getElementById("districtSelect");
     select.innerHTML = '<option value="">-- Choose District --</option>';
     districts.forEach(d => {
@@ -390,20 +424,17 @@
     const dist = document.getElementById("districtSelect").value;
     const blockSelect = document.getElementById("blockSelect");
     blockSelect.innerHTML = '<option value="">-- Choose Block --</option>';
-    
+    document.getElementById("gpSelect").innerHTML = '<option value="">-- Choose Gram Panchayat --</option>';
+    document.getElementById("dynamicContent").classList.add("hidden");
+
     if (dist) {
-      const blocks = [...new Set(masterData.filter(i => String(getVal(i, "DISTRICT")).trim() === dist).map(i => String(getVal(i, "BLOCK")).trim()))].filter(Boolean);
+      const blocks = [...new Set(vleMappings.filter(i => i.district === dist).map(i => i.block))].filter(Boolean);
       blocks.forEach(b => {
         let opt = document.createElement("option");
         opt.value = b; opt.textContent = b;
         blockSelect.appendChild(opt);
       });
-      document.getElementById("blockDiv").classList.remove("hidden");
-    } else {
-      document.getElementById("blockDiv").classList.add("hidden");
     }
-    document.getElementById("gpDiv").classList.add("hidden");
-    document.getElementById("dynamicContent").classList.add("hidden");
   }
 
   function onBlockChange() {
@@ -411,20 +442,16 @@
     const block = document.getElementById("blockSelect").value;
     const gpSelect = document.getElementById("gpSelect");
     gpSelect.innerHTML = '<option value="">-- Choose Gram Panchayat --</option>';
+    document.getElementById("dynamicContent").classList.add("hidden");
 
     if (block) {
-      const gps = masterData.filter(i => String(getVal(i, "DISTRICT")).trim() === dist && String(getVal(i, "BLOCK")).trim() === block);
+      const gps = vleMappings.filter(i => i.district === dist && i.block === block);
       gps.forEach(g => {
         let opt = document.createElement("option");
-        let name = String(getVal(g, "GRAMPANCHAYAT NAME")).trim();
-        opt.value = name; opt.textContent = name;
+        opt.value = g.gpName; opt.textContent = g.gpName;
         gpSelect.appendChild(opt);
       });
-      document.getElementById("gpDiv").classList.remove("hidden");
-    } else {
-      document.getElementById("gpDiv").classList.add("hidden");
     }
-    document.getElementById("dynamicContent").classList.add("hidden");
   }
 
   function onGPChange() {
@@ -432,13 +459,22 @@
     const block = document.getElementById("blockSelect").value;
     const gpName = document.getElementById("gpSelect").value;
 
+    if (!gpName) {
+      document.getElementById("dynamicContent").classList.add("hidden");
+      return;
+    }
+
+    // Find Master Data for selected GP
     selectedGPData = masterData.find(i => 
-      String(getVal(i, "DISTRICT")).trim() === dist && 
-      String(getVal(i, "BLOCK")).trim() === block && 
-      String(getVal(i, "GRAMPANCHAYAT NAME")).trim() === gpName
+      String(getVal(i, "DISTRICT")).trim().toLowerCase() === dist.toLowerCase() && 
+      String(getVal(i, "BLOCK")).trim().toLowerCase() === block.toLowerCase() && 
+      String(getVal(i, "GRAMPANCHAYAT NAME")).trim().toLowerCase() === gpName.toLowerCase()
     );
 
-    if (!selectedGPData) return;
+    if (!selectedGPData) {
+      alert("⚠️ Master Data not found for this Gram Panchayat!");
+      return;
+    }
 
     document.getElementById("dynamicContent").classList.remove("hidden");
     let showSubmit = false;
@@ -448,12 +484,6 @@
     if (apStatus === "INSTALLED") {
       document.getElementById("gponSection").classList.remove("hidden");
       document.getElementById("apSection").classList.remove("hidden");
-      if(document.getElementById("gpon_inst")) document.getElementById("gpon_inst").value = "";
-      if(document.getElementById("ap_pole")) document.getElementById("ap_pole").value = "";
-      if(document.getElementById("ap_inst")) document.getElementById("ap_inst").value = "";
-      if(document.getElementById("solar_inst")) document.getElementById("solar_inst").value = "";
-      if(document.getElementById("ccu_inst")) document.getElementById("ccu_inst").value = "";
-      if(document.getElementById("batt_inst")) document.getElementById("batt_inst").value = "";
       showSubmit = true;
     } else {
       document.getElementById("gponSection").classList.add("hidden");
@@ -500,29 +530,26 @@
     }
   }
 
+  function getVal(row, keyPrefix) {
+    if (!row) return "";
+    const cleanPrefix = keyPrefix.toLowerCase().trim();
+    for (let k in row) {
+      if (k.toLowerCase().trim() === cleanPrefix) return row[k];
+    }
+    return "";
+  }
+
   async function submitSurvey(e) {
     e.preventDefault();
 
-    // 1. CSC ID Pattern Check (12 digits, 9th & 10th='0', 11th='1')
     const cscVal = document.getElementById("cscId").value;
-    const isCscValid = (cscVal.length === 12) && 
-                       (cscVal.charAt(8) === '0') && 
-                       (cscVal.charAt(9) === '0') && 
-                       (cscVal.charAt(10) === '1');
-
-    if (!isCscValid) { 
-      alert("PLEASE ENTER CORRECT CSC ID"); 
-      return; 
-    }
-
-    // 2. Mobile Validation (10 digits starting 6-9)
     const mobVal = document.getElementById("mobileNumber").value;
+
     if (mobVal.length !== 10 || !/^[6-9]/.test(mobVal)) { 
-      alert("PLEASE ENTER CORRECT MOBILE NUMBER"); 
+      alert("PLEASE ENTER CORRECT 10-DIGIT MOBILE NUMBER"); 
       return; 
     }
 
-    // 3. GPS Coordinates Check
     if (!document.getElementById("latitude").value) {
       alert("❌ Please allow GPS/Location permission to proceed!");
       captureGPS(); 
@@ -530,32 +557,12 @@
     }
 
     const btn = document.getElementById("submitBtn");
-    btn.innerText = "Verifying CSC ID...";
+    btn.innerText = "Submitting Response...";
     btn.disabled = true;
 
-    // 4. Real-time Trained VLE Check against Google Sheet tab "Trained_VLEs"
-    try {
-      const checkRes = await fetch(API_URL + "?action=validateCsc&cscId=" + encodeURIComponent(cscVal));
-      const checkData = await checkRes.json();
-
-      if (!checkData.allowed) {
-        alert("आपने प्रशिक्षण नहीं लिया है कृपया अपने सीएससी जिला प्रबंधक से संपर्क करें");
-        btn.innerText = "Submit Final Survey Response";
-        btn.disabled = false;
-        return;
-      }
-    } catch (err) {
-      alert("❌ Error verifying CSC ID. Please try again.");
-      btn.innerText = "Submit Final Survey Response";
-      btn.disabled = false;
-      return;
-    }
-
-    btn.innerText = "Submitting Response...";
-
-    const selectedDistrict = getVal(selectedGPData, "DISTRICT");
-    const selectedBlock = getVal(selectedGPData, "BLOCK");
-    const selectedGp = getVal(selectedGPData, "GRAMPANCHAYAT NAME");
+    const selectedDistrict = document.getElementById("districtSelect").value;
+    const selectedBlock = document.getElementById("blockSelect").value;
+    const selectedGp = document.getElementById("gpSelect").value;
 
     const payload = {
       surveyorDistrict: selectedDistrict,
