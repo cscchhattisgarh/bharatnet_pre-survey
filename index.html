@@ -119,13 +119,17 @@
       color: white;
       font-weight: 700;
       padding: 14px;
-      border: None;
+      border: none;
       border-radius: 10px;
       font-size: 15px;
       cursor: pointer;
       margin-top: 10px;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
       transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
     .btn:hover { background-color: var(--primary-dark); }
@@ -133,7 +137,51 @@
     .btn-submit:hover { background-color: #047857; }
     .btn:disabled { background-color: #94a3b8; cursor: not-allowed; box-shadow: none; }
 
-    .alert-msg { color: var(--error); text-align: center; font-weight: 600; margin: 20px 0; padding: 14px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; font-size: 13.5px; }
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .alert-msg { 
+      color: var(--error); 
+      text-align: center; 
+      font-weight: 700; 
+      margin: 15px 0; 
+      padding: 16px; 
+      background: #fff1f2; 
+      border: 2px solid #fecdd3; 
+      border-radius: 12px; 
+      font-size: 16px; 
+    }
+
+    .success-banner {
+      color: #065f46;
+      text-align: center;
+      font-weight: 700;
+      margin: 15px 0;
+      padding: 16px;
+      background: #dcfce7;
+      border: 2px solid #86efac;
+      border-radius: 12px;
+      font-size: 16px;
+    }
+
+    .info-banner {
+      color: #1e40af;
+      text-align: center;
+      font-weight: 700;
+      margin: 15px 0;
+      padding: 16px;
+      background: #eff6ff;
+      border: 2px solid #bfdbfe;
+      border-radius: 12px;
+      font-size: 16px;
+    }
 
     .thank-you-card { text-align: center; padding: 50px 20px; animation: fadeIn 0.4s ease-in-out; }
     .thank-you-card .icon-circle {
@@ -158,22 +206,22 @@
     <!-- STEP 1: CSC ID VERIFICATION LOGIN -->
     <div id="cscLoginSection">
       <div class="form-group">
-        <label for="cscId">Enter CSC ID * (12 Digits)</label>
-        <input type="text" id="cscId" placeholder="e.g. 538426020012" maxlength="12" oninput="onCscInput(this)" required>
+        <label for="cscIdInput">Enter CSC ID * (12 Digits)</label>
+        <input type="text" id="cscIdInput" placeholder="e.g. 538426020012" maxlength="12" oninput="onCscInput(this)" onkeypress="handleCscKeypress(event)" required>
         <div id="cscCounter" class="counter-text">0 / 12 digits</div>
       </div>
       <button type="button" id="verifyBtn" class="btn" onclick="verifyCscId()">View Mapped Panchayat & Start Survey</button>
-      <div id="loginError" class="alert-msg hidden"></div>
+      <div id="loginError" class="hidden"></div>
     </div>
 
-    <!-- MAIN SURVEY FORM (Hidden initially until CSC verified) -->
+    <!-- MAIN SURVEY FORM -->
     <form id="mainSurveyForm" class="hidden" onsubmit="submitSurvey(event)">
       
-      <!-- SURVEYOR PROFILE SECTION (Auto-filled & Editable) -->
+      <!-- SURVEYOR PROFILE SECTION -->
       <div class="section section-surveyor">
         <h3>👤 Surveyor Profile</h3>
         
-          <div class="form-group">
+        <div class="form-group">
           <label for="displayCscId">CSC ID (Verified)</label>
           <input type="text" id="displayCscId" readonly>
         </div>
@@ -202,7 +250,7 @@
         </div>
       </div>
 
-      <!-- LOCATION SELECTION (Filtered by VLE Mapping) -->
+      <!-- LOCATION SELECTION -->
       <div class="section" style="background:#f8fafc; border-left-color:#2563eb;">
         <h3>📍 Select Mapped Location</h3>
 
@@ -231,7 +279,7 @@
       <!-- DYNAMIC QUESTION CONTENT CONTAINER -->
       <div id="dynamicContent" class="hidden">
         
-        <!-- SEPARATE GPON SURVEY SECTION -->
+        <!-- GPON SURVEY SECTION -->
         <div id="gponSection" class="section section-gpon hidden">
           <h3>🖥️ GPON Survey</h3>
           <div class="form-group">
@@ -244,7 +292,7 @@
           </div>
         </div>
 
-        <!-- ACCESS POINT SURVEY QUESTIONS SECTION -->
+        <!-- ACCESS POINT SURVEY SECTION -->
         <div id="apSection" class="section hidden">
           <h3>📡 Access Point Survey</h3>
           
@@ -294,14 +342,14 @@
           </div>
         </div>
 
-        <!-- FTTH ROUTER SURVEY QUESTIONS SECTION -->
+        <!-- FTTH ROUTER SURVEY SECTION -->
         <div id="ftthSection" class="section section-ftth hidden">
           <h3>🌐 FTTH Router Survey</h3>
           <div id="ftthSubscribersList"></div>
         </div>
 
         <div id="noSurveyMsg" class="alert-msg hidden">
-          ⚠️ Both AP and FTTH are "NOT INSTALLED" for this Gram Panchayat. Survey is not required.
+          ⚠️ इस ग्राम पंचायत के लिए AP और FTTH दोनों "उपलब्ध नहीं (Not Installed)" हैं। अतः सर्वे की आवश्यकता नहीं है।
         </div>
 
         <button type="submit" id="submitBtn" class="btn btn-submit hidden">Submit Final Survey Response</button>
@@ -318,15 +366,15 @@
 </div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbw55CJD1BAA5CswdWqZL-ktCWP9mHcLsN2pu5Ppq6ii0jIKLXaGTkmY7n7UtGT7OLWiGg/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbw0JETvro-L-dN_eUDyuUQavxOA7lr4WtIhqjZbzpXbVH3kN73Gc8-0MX37gVz89F2Hag/exec";
 
   let masterData = [];
   let vleMappings = [];
   let selectedGPData = null;
+  let verifiedCscId = "";
 
   window.onload = function() {
     captureGPS();
-    // Pre-fetch master data in background
     fetch(API_URL + "?action=getMasters")
       .then(res => res.json())
       .then(data => { masterData = data; })
@@ -337,6 +385,13 @@
     input.value = input.value.replace(/[^0-9]/g, '');
     let len = input.value.length;
     document.getElementById("cscCounter").innerText = len + " / 12 digits";
+  }
+
+  function handleCscKeypress(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      verifyCscId();
+    }
   }
 
   function validateNameInput(input) { input.value = input.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase(); }
@@ -362,24 +417,24 @@
   }
 
   async function verifyCscId() {
-    const cscVal = document.getElementById("cscId").value;
+    const cscVal = document.getElementById("cscIdInput").value;
     const errDiv = document.getElementById("loginError");
-    errDiv.classList.add("hidden");
+    errDiv.className = "hidden";
+    errDiv.innerHTML = "";
 
-    // Validation: 12 digits, 9th & 10th='0', 11th='1'
     if (cscVal.length !== 12) {
-      errDiv.innerText = "⚠️ CSC ID must be exactly 12 digits.";
-      errDiv.classList.remove("hidden");
+      errDiv.className = "alert-msg";
+      errDiv.innerHTML = "⚠️ CSC ID ठीक 12 अंकों की होनी चाहिए।";
       return;
     }
     if (cscVal.charAt(8) !== '0' || cscVal.charAt(9) !== '0' || cscVal.charAt(10) !== '1') {
-      errDiv.innerText = "⚠️ Invalid CSC ID pattern (9th & 10th must be '0' and 11th must be '1').";
-      errDiv.classList.remove("hidden");
+      errDiv.className = "alert-msg";
+      errDiv.innerHTML = "⚠️ अमान्य CSC ID पैटर्न (9वां व 10वां अंक '0' और 11वां अंक '1' होना चाहिए)।";
       return;
     }
 
     const btn = document.getElementById("verifyBtn");
-    btn.innerText = "Verifying CSC ID...";
+    btn.innerText = "जांच की जा रही है...";
     btn.disabled = true;
 
     try {
@@ -387,30 +442,41 @@
       const data = await res.json();
 
       if (!data.success) {
-        errDiv.innerText = "⚠️ आपने प्रशिक्षण नहीं लिया है या यह CSC ID अधिकृत नहीं है। कृपया जिला प्रबंधक से संपर्क करें।";
-        errDiv.classList.remove("hidden");
-        btn.innerText = "Load Mapped Locations & Verify";
+        errDiv.className = "alert-msg";
+        errDiv.innerHTML = data.message || "⚠️ आपने प्रशिक्षण नहीं लिया है या यह CSC ID अधिकृत नहीं है। कृपया जिला प्रबंधक से संपर्क करें।";
+        btn.innerText = "View Mapped Panchayat & Start Survey";
         btn.disabled = false;
         return;
       }
 
-      // Populate VLE Details
+      // Check if all submitted
+      if (data.allSubmitted) {
+        errDiv.className = "success-banner";
+        errDiv.innerHTML = "✅ आपकी ID में मैप पंचायत का सर्वे पूरा कर लिया गया है।";
+        btn.innerText = "View Mapped Panchayat & Start Survey";
+        btn.disabled = false;
+        return;
+      }
+
+      verifiedCscId = cscVal;
       document.getElementById("displayCscId").value = cscVal;
       document.getElementById("vleName").value = data.vleName;
       document.getElementById("mobileNumber").value = data.vleMobile;
       vleMappings = data.mappings;
 
-      // Hide login section, show main form
+      // Info banner showing total and pending count in pure Hindi
+      errDiv.className = "info-banner";
+      errDiv.innerHTML = "ℹ️ आपकी ID में कुल " + data.totalCount + " पंचायत मैप हैं जिसमें से " + data.pendingCount + " पंचायत का सर्वे अभी pending है।";
+
       document.getElementById("cscLoginSection").classList.add("hidden");
       document.getElementById("mainSurveyForm").classList.remove("hidden");
 
-      // Populate Districts from VLE Mappings
       populateDistricts();
 
     } catch (err) {
-      errDiv.innerText = "❌ Connection Error. Please try again.";
-      errDiv.classList.remove("hidden");
-      btn.innerText = "Load Mapped Locations & Verify";
+      errDiv.className = "alert-msg";
+      errDiv.innerHTML = "❌ कनेक्शन में त्रुटि। कृपया पुनः प्रयास करें।";
+      btn.innerText = "View Mapped Panchayat & Start Survey";
       btn.disabled = false;
     }
   }
@@ -418,7 +484,7 @@
   function populateDistricts() {
     const districts = [...new Set(vleMappings.map(i => i.district))].filter(Boolean);
     const select = document.getElementById("districtSelect");
-    select.innerHTML = '<option value="">-- Choose District --</option>';
+    select.innerHTML = '<option value="">-- जिला चुनें --</option>';
     districts.forEach(d => {
       let opt = document.createElement("option");
       opt.value = d; opt.textContent = d;
@@ -429,8 +495,8 @@
   function onDistrictChange() {
     const dist = document.getElementById("districtSelect").value;
     const blockSelect = document.getElementById("blockSelect");
-    blockSelect.innerHTML = '<option value="">-- Choose Block --</option>';
-    document.getElementById("gpSelect").innerHTML = '<option value="">-- Choose Gram Panchayat --</option>';
+    blockSelect.innerHTML = '<option value="">-- ब्लॉक चुनें --</option>';
+    document.getElementById("gpSelect").innerHTML = '<option value="">-- ग्राम पंचायत चुनें --</option>';
     document.getElementById("dynamicContent").classList.add("hidden");
 
     if (dist) {
@@ -447,7 +513,7 @@
     const dist = document.getElementById("districtSelect").value;
     const block = document.getElementById("blockSelect").value;
     const gpSelect = document.getElementById("gpSelect");
-    gpSelect.innerHTML = '<option value="">-- Choose Gram Panchayat --</option>';
+    gpSelect.innerHTML = '<option value="">-- ग्राम पंचायत चुनें --</option>';
     document.getElementById("dynamicContent").classList.add("hidden");
 
     if (block) {
@@ -470,7 +536,6 @@
       return;
     }
 
-    // Find Master Data for selected GP
     selectedGPData = masterData.find(i => 
       String(getVal(i, "DISTRICT")).trim().toLowerCase() === dist.toLowerCase() && 
       String(getVal(i, "BLOCK")).trim().toLowerCase() === block.toLowerCase() && 
@@ -478,14 +543,13 @@
     );
 
     if (!selectedGPData) {
-      alert("⚠️ Master Data not found for this Gram Panchayat!");
+      alert("⚠️ इस ग्राम पंचायत का मास्टर डेटा नहीं मिला है!");
       return;
     }
 
     document.getElementById("dynamicContent").classList.remove("hidden");
     let showSubmit = false;
 
-    // Access Point Logic Check
     const apStatus = String(getVal(selectedGPData, "ACCESS POINT STATUS")).trim().toUpperCase();
     if (apStatus === "INSTALLED") {
       document.getElementById("gponSection").classList.remove("hidden");
@@ -496,7 +560,6 @@
       document.getElementById("apSection").classList.add("hidden");
     }
 
-    // FTTH Router Logic Check
     const ftthContainer = document.getElementById("ftthSubscribersList");
     ftthContainer.innerHTML = "";
     const ftthStatus = String(getVal(selectedGPData, "FTTH STATUS")).trim().toUpperCase();
@@ -516,7 +579,7 @@
           
           div.innerHTML = `<label>${displayLabel} - Router Installed?</label>
             <select id="sub_${i}_status" required>
-              <option value="">-- Select --</option>
+              <option value="">-- चुनें --</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
             </select>`;
@@ -548,22 +611,20 @@
   async function submitSurvey(e) {
     e.preventDefault();
 
-    const cscVal = document.getElementById("cscId").value;
     const mobVal = document.getElementById("mobileNumber").value;
-
     if (mobVal.length !== 10 || !/^[6-9]/.test(mobVal)) { 
-      alert("PLEASE ENTER CORRECT 10-DIGIT MOBILE NUMBER"); 
+      alert("कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें"); 
       return; 
     }
 
     if (!document.getElementById("latitude").value) {
-      alert("❌ Please allow GPS/Location permission to proceed!");
+      alert("❌ कृपया आगे बढ़ने के लिए GPS/लोकेशन की अनुमति दें!");
       captureGPS(); 
       return;
     }
 
     const btn = document.getElementById("submitBtn");
-    btn.innerText = "Submitting Response...";
+    btn.innerHTML = '<div class="spinner"></div> सबमिट किया जा रहा है...';
     btn.disabled = true;
 
     const selectedDistrict = document.getElementById("districtSelect").value;
@@ -574,7 +635,7 @@
       surveyorDistrict: selectedDistrict,
       surveyorBlock: selectedBlock,
       surveyorGp: selectedGp,
-      cscId: cscVal,
+      cscId: verifiedCscId,
       vleName: document.getElementById("vleName").value,
       mobileNumber: mobVal,
       emailId: document.getElementById("emailId").value,
@@ -627,8 +688,8 @@
       document.getElementById("thankYouScreen").classList.remove("hidden");
     })
     .catch(err => {
-      alert("❌ Submission Error: " + err);
-      btn.innerText = "Submit Final Survey Response";
+      alert("❌ सबमिशन त्रुटि: " + err);
+      btn.innerHTML = "Submit Final Survey Response";
       btn.disabled = false;
     });
   }
