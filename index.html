@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bharatnet Pre-Survey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #0f172a;
+      --success: #059669;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --error: #e11d48;
+    }
+
+    * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    body {
+      margin: 0;
+      padding: 20px 14px;
+      background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 100%);
+      min-height: 100vh;
+      color: var(--text-main);
+    }
+
+    .container {
+      max-width: 650px;
+      margin: auto;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08);
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+      color: #ffffff;
+      padding: 26px 20px;
+      text-align: center;
+    }
+
+    .app-header h2 { margin: 0 0 6px 0; font-size: 24px; font-weight: 700; }
+    .app-header p { margin: 0; font-size: 14px; color: #c7d2fe; font-weight: 500; }
+    .card-body { padding: 24px 20px; }
+
+    .form-group { margin-bottom: 18px; }
+    label { font-weight: 600; display: block; margin-bottom: 6px; color: #334155; font-size: 13px; }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      background-color: #fff;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%64748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    input[readonly] { background-color: #f8fafc; color: #64748b; cursor: not-allowed; border-style: dashed; }
+
+    .gps-box {
+      background: #f8fafc;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1.5px dashed var(--border);
+      margin-bottom: 20px;
+    }
+
+    .gps-status { font-weight: 600; color: var(--primary); font-size: 13px; margin-bottom: 8px; }
+    .gps-coords { display: flex; gap: 10px; }
+
+    .section {
+      background: #eff6ff;
+      padding: 18px;
+      border-radius: 12px;
+      margin-top: 20px;
+      border: 1px solid #bfdbfe;
+      border-left: 5px solid var(--primary);
+    }
+
+    .section-gpon { background: #fdf4ff; border-color: #f5d0fe; border-left-color: #c084fc; }
+    .section-ftth { background: #ecfdf5; border-color: #a7f3d0; border-left-color: var(--success); }
+    .section-surveyor { background: #f8fafc; border-color: #e2e8f0; border-left-color: #312e81; }
+
+    .section h3 { margin-top: 0; font-size: 15px; color: #1e40af; margin-bottom: 14px; font-weight: 700; }
+    .section-gpon h3 { color: #86198f; }
+    .section-ftth h3 { color: #065f46; }
+    .section-surveyor h3 { color: #1e1b4b; }
+    .hidden { display: none !important; }
+
+    .btn {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      font-weight: 700;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover { background-color: var(--primary-dark); }
+    .btn-submit { background-color: var(--success); box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25); }
+    .btn-submit:hover { background-color: #047857; }
+    .btn:disabled { background-color: #94a3b8; cursor: not-allowed; box-shadow: none; }
+
+    .loading-text { text-align: center; color: var(--text-muted); font-weight: 600; padding: 30px 0; font-size: 15px; }
+    .alert-msg { color: var(--error); text-align: center; font-weight: 600; margin: 20px 0; padding: 14px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; font-size: 13.5px; }
+
+    .thank-you-card { text-align: center; padding: 50px 20px; animation: fadeIn 0.4s ease-in-out; }
+    .thank-you-card .icon-circle {
+      width: 76px; height: 76px; background: #dcfce7; color: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 38px; margin: 0 auto 20px auto;
+    }
+    .thank-you-card h2 { color: #0f172a; font-size: 26px; margin-bottom: 8px; }
+    .thank-you-card p { color: var(--text-muted); font-size: 15px; margin-bottom: 0; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="app-header" id="appHeader">
+    <h2>Bharatnet Pre-Survey</h2>
+    <p>Access point & Government FTTH Survey</p>
+  </div>
+
+  <div class="card-body">
+    <div id="loader" class="loading-text">⚡ Loading Data Instantly...</div>
+
+    <!-- SINGLE STEP MAIN FORM -->
+    <form id="mainSurveyForm" class="hidden" onsubmit="submitSurvey(event)">
+      
+      <!-- 1. LOCATION SELECTION -->
+      <div class="form-group">
+        <label for="districtSelect">1. Select District *</label>
+        <select id="districtSelect" onchange="onDistrictChange()" required>
+          <option value="">-- Choose District --</option>
+        </select>
+      </div>
+
+      <div class="form-group hidden" id="blockDiv">
+        <label for="blockSelect">2. Select Block *</label>
+        <select id="blockSelect" onchange="onBlockChange()" required>
+          <option value="">-- Choose Block --</option>
+        </select>
+      </div>
+
+      <div class="form-group hidden" id="gpDiv">
+        <label for="gpSelect">3. Select Gram Panchayat *</label>
+        <select id="gpSelect" onchange="onGPChange()" required>
+          <option value="">-- Choose Gram Panchayat --</option>
+        </select>
+      </div>
+
+      <!-- DYNAMIC QUESTION CONTENT CONTAINER -->
+      <div id="dynamicContent" class="hidden">
+        
+        <!-- 2. SURVEYOR PROFILE SECTION -->
+        <div class="section section-surveyor">
+          <h3>👤 Surveyor Profile & Verification</h3>
+
+          <div class="form-group">
+            <label for="cscId">CSC ID * (12 digits, e.g. 538426020012)</label>
+            <input type="text" id="cscId" placeholder="e.g. 538426020012" maxlength="12" oninput="validateCscInput(this)" required>
+          </div>
+
+          <div class="form-group">
+            <label for="vleName">VLE Name * (Text Only)</label>
+            <input type="text" id="vleName" placeholder="ENTER FULL NAME" oninput="validateNameInput(this)" required>
+          </div>
+
+          <div class="form-group">
+            <label for="mobileNumber">Mobile Number * (10 Digits)</label>
+            <input type="tel" id="mobileNumber" placeholder="Enter 10-digit Mobile Number" maxlength="10" oninput="validateMobileInput(this)" required>
+          </div>
+
+          <div class="form-group">
+            <label for="emailId">Email ID *</label>
+            <input type="email" id="emailId" placeholder="example@domain.com" required>
+          </div>
+
+          <div class="gps-box">
+            <div class="gps-status" id="gpsStatus">📍 Capturing GPS Location...</div>
+            <div class="gps-coords">
+              <input type="text" id="latitude" placeholder="Latitude" readonly required>
+              <input type="text" id="longitude" placeholder="Longitude" readonly required>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. SEPARATE GPON SURVEY SECTION -->
+        <div id="gponSection" class="section section-gpon hidden">
+          <h3>🖥️ GPON Survey</h3>
+          <div class="form-group">
+            <label>1) GPON Installed?</label>
+            <select id="gpon_inst" required>
+              <option value="">-- Select --</option>
+              <option value="YES">YES</option>
+              <option value="NO">NO</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 4. ACCESS POINT SURVEY QUESTIONS SECTION -->
+        <div id="apSection" class="section hidden">
+          <h3>📡 Access Point Survey</h3>
+          
+          <div class="form-group">
+            <label>1) Access Point - Pole Installed?</label>
+            <select id="ap_pole" required>
+              <option value="">-- Select --</option>
+              <option value="YES">YES</option>
+              <option value="NO">NO</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>2) Access Point Installed?</label>
+            <select id="ap_inst" required>
+              <option value="">-- Select --</option>
+              <option value="YES">YES</option>
+              <option value="NO">NO</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>3) Solar Installed?</label>
+            <select id="solar_inst" required>
+              <option value="">-- Select --</option>
+              <option value="YES">YES</option>
+              <option value="NO">NO</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>4) CCU Installed?</label>
+            <select id="ccu_inst" required>
+              <option value="">-- Select --</option>
+              <option value="YES">YES</option>
+              <option value="NO">NO</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>5) Battery Installed?</label>
+            <select id="batt_inst" required>
+              <option value="">-- Select --</option>
+              <option value="YES">YES</option>
+              <option value="NO">NO</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 5. FTTH ROUTER SURVEY QUESTIONS SECTION -->
+        <div id="ftthSection" class="section section-ftth hidden">
+          <h3>🌐 FTTH Router Survey</h3>
+          <div id="ftthSubscribersList"></div>
+        </div>
+
+        <div id="noSurveyMsg" class="alert-msg hidden">
+          ⚠️ Both AP and FTTH are "NOT INSTALLED" for this Gram Panchayat. Survey is not required.
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn btn-submit hidden">Submit Final Survey Response</button>
+      </div>
+    </form>
+
+    <!-- THANK YOU SCREEN (WITHOUT START NEW SURVEY BUTTON) -->
+    <div id="thankYouScreen" class="thank-you-card hidden">
+      <div class="icon-circle">✓</div>
+      <h2>Thank You</h2>
+      <p>Survey Completed Successfully!</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbw55CJD1BAA5CswdWqZL-ktCWP9mHcLsN2pu5Ppq6ii0jIKLXaGTkmY7n7UtGT7OLWiGg/exec";
+
+  let masterData = [];
+  let selectedGPData = null;
+
+  window.onload = function() {
+    captureGPS();
+    
+    const localMaster = localStorage.getItem("survey_master_v2");
+    if (localMaster) {
+      masterData = JSON.parse(localMaster);
+      initApp();
+      fetchMaster(true);
+    } else {
+      fetchMaster(false);
+    }
+  };
+
+  function fetchMaster(isBg) {
+    fetch(API_URL + "?action=getMasters")
+      .then(res => res.json())
+      .then(data => {
+        masterData = data;
+        localStorage.setItem("survey_master_v2", JSON.stringify(data));
+        if (!isBg) initApp();
+      })
+      .catch(err => {
+        if (!isBg && masterData.length === 0) {
+          document.getElementById("loader").innerText = "❌ Connection slow. Please tap refresh.";
+        }
+      });
+  }
+
+  function initApp() {
+    document.getElementById("loader").classList.add("hidden");
+    document.getElementById("mainSurveyForm").classList.remove("hidden");
+    populateDistricts();
+  }
+
+  function getVal(row, keyPrefix) {
+    if (!row) return "";
+    const cleanPrefix = keyPrefix.toLowerCase().trim();
+    for (let k in row) {
+      if (k.toLowerCase().trim() === cleanPrefix) return row[k];
+    }
+    return "";
+  }
+
+  function validateCscInput(input) { input.value = input.value.replace(/[^0-9]/g, ''); }
+  function validateNameInput(input) { input.value = input.value.replace(/[^a-zA-Z\s]/g, '').toUpperCase(); }
+  function validateMobileInput(input) { input.value = input.value.replace(/[^0-9]/g, ''); }
+
+  function captureGPS() {
+    const status = document.getElementById("gpsStatus");
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          document.getElementById("latitude").value = position.coords.latitude.toFixed(6);
+          document.getElementById("longitude").value = position.coords.longitude.toFixed(6);
+          status.innerHTML = "✅ GPS Location Captured Successfully!";
+          status.style.color = "var(--success)";
+        },
+        error => {
+          status.innerHTML = "⚠️ Location Permission Required. Please enable GPS.";
+          status.style.color = "var(--error)";
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }
+
+  function populateDistricts() {
+    const districts = [...new Set(masterData.map(i => String(getVal(i, "DISTRICT")).trim()))].filter(Boolean);
+    const select = document.getElementById("districtSelect");
+    select.innerHTML = '<option value="">-- Choose District --</option>';
+    districts.forEach(d => {
+      let opt = document.createElement("option");
+      opt.value = d; opt.textContent = d;
+      select.appendChild(opt);
+    });
+  }
+
+  function onDistrictChange() {
+    const dist = document.getElementById("districtSelect").value;
+    const blockSelect = document.getElementById("blockSelect");
+    blockSelect.innerHTML = '<option value="">-- Choose Block --</option>';
+    
+    if (dist) {
+      const blocks = [...new Set(masterData.filter(i => String(getVal(i, "DISTRICT")).trim() === dist).map(i => String(getVal(i, "BLOCK")).trim()))].filter(Boolean);
+      blocks.forEach(b => {
+        let opt = document.createElement("option");
+        opt.value = b; opt.textContent = b;
+        blockSelect.appendChild(opt);
+      });
+      document.getElementById("blockDiv").classList.remove("hidden");
+    } else {
+      document.getElementById("blockDiv").classList.add("hidden");
+    }
+    document.getElementById("gpDiv").classList.add("hidden");
+    document.getElementById("dynamicContent").classList.add("hidden");
+  }
+
+  function onBlockChange() {
+    const dist = document.getElementById("districtSelect").value;
+    const block = document.getElementById("blockSelect").value;
+    const gpSelect = document.getElementById("gpSelect");
+    gpSelect.innerHTML = '<option value="">-- Choose Gram Panchayat --</option>';
+
+    if (block) {
+      const gps = masterData.filter(i => String(getVal(i, "DISTRICT")).trim() === dist && String(getVal(i, "BLOCK")).trim() === block);
+      gps.forEach(g => {
+        let opt = document.createElement("option");
+        let name = String(getVal(g, "GRAMPANCHAYAT NAME")).trim();
+        opt.value = name; opt.textContent = name;
+        gpSelect.appendChild(opt);
+      });
+      document.getElementById("gpDiv").classList.remove("hidden");
+    } else {
+      document.getElementById("gpDiv").classList.add("hidden");
+    }
+    document.getElementById("dynamicContent").classList.add("hidden");
+  }
+
+  function onGPChange() {
+    const dist = document.getElementById("districtSelect").value;
+    const block = document.getElementById("blockSelect").value;
+    const gpName = document.getElementById("gpSelect").value;
+
+    selectedGPData = masterData.find(i => 
+      String(getVal(i, "DISTRICT")).trim() === dist && 
+      String(getVal(i, "BLOCK")).trim() === block && 
+      String(getVal(i, "GRAMPANCHAYAT NAME")).trim() === gpName
+    );
+
+    if (!selectedGPData) return;
+
+    document.getElementById("dynamicContent").classList.remove("hidden");
+    let showSubmit = false;
+
+    // Access Point Logic Check
+    const apStatus = String(getVal(selectedGPData, "ACCESS POINT STATUS")).trim().toUpperCase();
+    if (apStatus === "INSTALLED") {
+      document.getElementById("gponSection").classList.remove("hidden");
+      document.getElementById("apSection").classList.remove("hidden");
+      if(document.getElementById("gpon_inst")) document.getElementById("gpon_inst").value = "";
+      if(document.getElementById("ap_pole")) document.getElementById("ap_pole").value = "";
+      if(document.getElementById("ap_inst")) document.getElementById("ap_inst").value = "";
+      if(document.getElementById("solar_inst")) document.getElementById("solar_inst").value = "";
+      if(document.getElementById("ccu_inst")) document.getElementById("ccu_inst").value = "";
+      if(document.getElementById("batt_inst")) document.getElementById("batt_inst").value = "";
+      showSubmit = true;
+    } else {
+      document.getElementById("gponSection").classList.add("hidden");
+      document.getElementById("apSection").classList.add("hidden");
+    }
+
+    // FTTH Router Logic Check
+    const ftthContainer = document.getElementById("ftthSubscribersList");
+    ftthContainer.innerHTML = "";
+    const ftthStatus = String(getVal(selectedGPData, "FTTH STATUS")).trim().toUpperCase();
+
+    if (ftthStatus === "INSTALLED") {
+      document.getElementById("ftthSection").classList.remove("hidden");
+      showSubmit = true;
+
+      for (let i = 1; i <= 5; i++) {
+        let subId = getVal(selectedGPData, `SUBSCRIBER ID - ${i}`);
+        let org = getVal(selectedGPData, `ORGANISATION - TYPE ${i}`);
+
+        if (subId && String(subId).trim() !== "") {
+          let div = document.createElement("div");
+          div.className = "form-group";
+          let displayLabel = org && String(org).trim() !== "" ? String(org).trim() : `Location ${i}`;
+          
+          div.innerHTML = `<label>${displayLabel} - Router Installed?</label>
+            <select id="sub_${i}_status" required>
+              <option value="">-- Select --</option>
+              <option value="YES">YES</option>
+              <option value="NO">NO</option>
+            </select>`;
+          ftthContainer.appendChild(div);
+        }
+      }
+    } else {
+      document.getElementById("ftthSection").classList.add("hidden");
+    }
+
+    if (!showSubmit) {
+      document.getElementById("noSurveyMsg").classList.remove("hidden");
+      document.getElementById("submitBtn").classList.add("hidden");
+    } else {
+      document.getElementById("noSurveyMsg").classList.add("hidden");
+      document.getElementById("submitBtn").classList.remove("hidden");
+    }
+  }
+
+  async function submitSurvey(e) {
+    e.preventDefault();
+
+    // 1. CSC ID Pattern Check (12 digits, 9th & 10th='0', 11th='1')
+    const cscVal = document.getElementById("cscId").value;
+    const isCscValid = (cscVal.length === 12) && 
+                       (cscVal.charAt(8) === '0') && 
+                       (cscVal.charAt(9) === '0') && 
+                       (cscVal.charAt(10) === '1');
+
+    if (!isCscValid) { 
+      alert("PLEASE ENTER CORRECT CSC ID"); 
+      return; 
+    }
+
+    // 2. Mobile Validation (10 digits starting 6-9)
+    const mobVal = document.getElementById("mobileNumber").value;
+    if (mobVal.length !== 10 || !/^[6-9]/.test(mobVal)) { 
+      alert("PLEASE ENTER CORRECT MOBILE NUMBER"); 
+      return; 
+    }
+
+    // 3. GPS Coordinates Check
+    if (!document.getElementById("latitude").value) {
+      alert("❌ Please allow GPS/Location permission to proceed!");
+      captureGPS(); 
+      return;
+    }
+
+    const btn = document.getElementById("submitBtn");
+    btn.innerText = "Verifying CSC ID...";
+    btn.disabled = true;
+
+    // 4. Real-time Trained VLE Check against Google Sheet tab "Trained_VLEs"
+    try {
+      const checkRes = await fetch(API_URL + "?action=validateCsc&cscId=" + encodeURIComponent(cscVal));
+      const checkData = await checkRes.json();
+
+      if (!checkData.allowed) {
+        alert("आपने प्रशिक्षण नहीं लिया है कृपया अपने सीएससी जिला प्रबंधक से संपर्क करें");
+        btn.innerText = "Submit Final Survey Response";
+        btn.disabled = false;
+        return;
+      }
+    } catch (err) {
+      alert("❌ Error verifying CSC ID. Please try again.");
+      btn.innerText = "Submit Final Survey Response";
+      btn.disabled = false;
+      return;
+    }
+
+    btn.innerText = "Submitting Response...";
+
+    const selectedDistrict = getVal(selectedGPData, "DISTRICT");
+    const selectedBlock = getVal(selectedGPData, "BLOCK");
+    const selectedGp = getVal(selectedGPData, "GRAMPANCHAYAT NAME");
+
+    const payload = {
+      surveyorDistrict: selectedDistrict,
+      surveyorBlock: selectedBlock,
+      surveyorGp: selectedGp,
+      cscId: cscVal,
+      vleName: document.getElementById("vleName").value,
+      mobileNumber: mobVal,
+      emailId: document.getElementById("emailId").value,
+      latitude: document.getElementById("latitude").value,
+      longitude: document.getElementById("longitude").value,
+
+      districtName: selectedDistrict,
+      districtCode: getVal(selectedGPData, "DISTRICT CODE"),
+      blockName: selectedBlock,
+      blockCode: getVal(selectedGPData, "BLOCK CODE"),
+      gpName: selectedGp,
+      gpCode: getVal(selectedGPData, "GRAMPANCHAYAT CODE"),
+      
+      gponStatus: document.getElementById("gpon_inst") ? document.getElementById("gpon_inst").value : "",
+      apPoleStatus: document.getElementById("ap_pole") ? document.getElementById("ap_pole").value : "",
+      apStatus: document.getElementById("ap_inst") ? document.getElementById("ap_inst").value : "",
+      solarStatus: document.getElementById("solar_inst") ? document.getElementById("solar_inst").value : "",
+      ccuStatus: document.getElementById("ccu_inst") ? document.getElementById("ccu_inst").value : "",
+      batteryStatus: document.getElementById("batt_inst") ? document.getElementById("batt_inst").value : "",
+      
+      sub1Id: getVal(selectedGPData, "SUBSCRIBER ID - 1"),
+      sub1Org: getVal(selectedGPData, "ORGANISATION - TYPE 1"),
+      sub1Status: document.getElementById("sub_1_status") ? document.getElementById("sub_1_status").value : "",
+      
+      sub2Id: getVal(selectedGPData, "SUBSCRIBER ID - 2"),
+      sub2Org: getVal(selectedGPData, "ORGANISATION - TYPE 2"),
+      sub2Status: document.getElementById("sub_2_status") ? document.getElementById("sub_2_status").value : "",
+      
+      sub3Id: getVal(selectedGPData, "SUBSCRIBER ID - 3"),
+      sub3Org: getVal(selectedGPData, "ORGANISATION - TYPE 3"),
+      sub3Status: document.getElementById("sub_3_status") ? document.getElementById("sub_3_status").value : "",
+      
+      sub4Id: getVal(selectedGPData, "SUBSCRIBER ID - 4"),
+      sub4Org: getVal(selectedGPData, "ORGANISATION - TYPE 4"),
+      sub4Status: document.getElementById("sub_4_status") ? document.getElementById("sub_4_status").value : "",
+      
+      sub5Id: getVal(selectedGPData, "SUBSCRIBER ID - 5"),
+      sub5Org: getVal(selectedGPData, "ORGANISATION - TYPE 5"),
+      sub5Status: document.getElementById("sub_5_status") ? document.getElementById("sub_5_status").value : ""
+    };
+
+    fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(res => {
+      document.getElementById("mainSurveyForm").classList.add("hidden");
+      document.getElementById("appHeader").classList.add("hidden");
+      document.getElementById("thankYouScreen").classList.remove("hidden");
+    })
+    .catch(err => {
+      alert("❌ Submission Error: " + err);
+      btn.innerText = "Submit Final Survey Response";
+      btn.disabled = false;
+    });
+  }
+</script>
+</body>
+</html>
