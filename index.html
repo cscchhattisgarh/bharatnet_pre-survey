@@ -284,7 +284,7 @@
           <h3>🖥️ GPON Survey</h3>
           <div class="form-group">
             <label>1) GPON Installed?</label>
-            <select id="gpon_inst" required>
+            <select id="gpon_inst">
               <option value="">-- Select --</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
@@ -298,7 +298,7 @@
           
           <div class="form-group">
             <label>1) Access Point - Pole Installed?</label>
-            <select id="ap_pole" required>
+            <select id="ap_pole">
               <option value="">-- Select --</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
@@ -307,7 +307,7 @@
 
           <div class="form-group">
             <label>2) Access Point Installed?</label>
-            <select id="ap_inst" required>
+            <select id="ap_inst">
               <option value="">-- Select --</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
@@ -316,7 +316,7 @@
 
           <div class="form-group">
             <label>3) Solar Installed?</label>
-            <select id="solar_inst" required>
+            <select id="solar_inst">
               <option value="">-- Select --</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
@@ -325,7 +325,7 @@
 
           <div class="form-group">
             <label>4) CCU Installed?</label>
-            <select id="ccu_inst" required>
+            <select id="ccu_inst">
               <option value="">-- Select --</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
@@ -334,7 +334,7 @@
 
           <div class="form-group">
             <label>5) Battery Installed?</label>
-            <select id="batt_inst" required>
+            <select id="batt_inst">
               <option value="">-- Select --</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
@@ -449,7 +449,6 @@
         return;
       }
 
-      // Check if all submitted
       if (data.allSubmitted) {
         errDiv.className = "success-banner";
         errDiv.innerHTML = "✅ आपकी ID में मैप पंचायत का सर्वे पूरा कर लिया गया है।";
@@ -464,7 +463,6 @@
       document.getElementById("mobileNumber").value = data.vleMobile;
       vleMappings = data.mappings;
 
-      // Info banner showing total and pending count in pure Hindi
       errDiv.className = "info-banner";
       errDiv.innerHTML = "ℹ️ आपकी ID में कुल " + data.totalCount + " पंचायत मैप हैं जिसमें से " + data.pendingCount + " पंचायत का सर्वे अभी pending है।";
 
@@ -543,32 +541,40 @@
     );
 
     if (!selectedGPData) {
-      alert("⚠️ Is gram panchayat ka master data nahi mila hai!");
+      alert("⚠️ इस ग्राम पंचायत का मास्टर डेटा नहीं मिला है!");
       return;
     }
 
     document.getElementById("dynamicContent").classList.remove("hidden");
     let showSubmit = false;
 
-    // 1. GPON Survey ab sabhi panchayaton ke liye hamesha visible rahega
-    document.getElementById("gponSection").classList.remove("hidden");
+    // 1. GPON Survey section hamesha visible rahega aur required set hoga
+    const gponSec = document.getElementById("gponSection");
+    gponSec.classList.remove("hidden");
+    document.getElementById("gpon_inst").setAttribute("required", "true");
     showSubmit = true;
 
-    // 2. Access Point survey sirf tabhi dikhega jab ACCESS POINT STATUS 'INSTALLED' ho
+    // 2. Access Point survey section logic with dynamic required attributes
+    const apSec = document.getElementById("apSection");
     const apStatus = String(getVal(selectedGPData, "ACCESS POINT STATUS")).trim().toUpperCase();
+    const apInputs = ["ap_pole", "ap_inst", "solar_inst", "ccu_inst", "batt_inst"];
+
     if (apStatus === "INSTALLED") {
-      document.getElementById("apSection").classList.remove("hidden");
+      apSec.classList.remove("hidden");
+      apInputs.forEach(id => document.getElementById(id).setAttribute("required", "true"));
     } else {
-      document.getElementById("apSection").classList.add("hidden");
+      apSec.classList.add("hidden");
+      apInputs.forEach(id => document.getElementById(id).removeAttribute("required"));
     }
 
-    // 3. FTTH Router Survey logic waisa hi rahega
+    // 3. FTTH Router Survey logic with dynamic required attributes
     const ftthContainer = document.getElementById("ftthSubscribersList");
     ftthContainer.innerHTML = "";
+    const ftthSec = document.getElementById("ftthSection");
     const ftthStatus = String(getVal(selectedGPData, "FTTH STATUS")).trim().toUpperCase();
 
     if (ftthStatus === "INSTALLED") {
-      document.getElementById("ftthSection").classList.remove("hidden");
+      ftthSec.classList.remove("hidden");
       showSubmit = true;
 
       for (let i = 1; i <= 5; i++) {
@@ -582,7 +588,7 @@
           
           div.innerHTML = `<label>${displayLabel} - Router Installed?</label>
             <select id="sub_${i}_status" required>
-              <option value="">-- Chune --</option>
+              <option value="">-- चुनें --</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
             </select>`;
@@ -590,7 +596,7 @@
         }
       }
     } else {
-      document.getElementById("ftthSection").classList.add("hidden");
+      ftthSec.classList.add("hidden");
     }
 
     if (!showSubmit) {
@@ -601,6 +607,7 @@
       document.getElementById("submitBtn").classList.remove("hidden");
     }
   }
+
   function getVal(row, keyPrefix) {
     if (!row) return "";
     const cleanPrefix = keyPrefix.toLowerCase().trim();
