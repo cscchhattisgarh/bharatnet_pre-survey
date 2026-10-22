@@ -543,23 +543,26 @@
     );
 
     if (!selectedGPData) {
-      alert("⚠️ इस ग्राम पंचायत का मास्टर डेटा नहीं मिला है!");
+      alert("⚠️ Is gram panchayat ka master data nahi mila hai!");
       return;
     }
 
     document.getElementById("dynamicContent").classList.remove("hidden");
     let showSubmit = false;
 
+    // 1. GPON Survey ab sabhi panchayaton ke liye hamesha visible rahega
+    document.getElementById("gponSection").classList.remove("hidden");
+    showSubmit = true;
+
+    // 2. Access Point survey sirf tabhi dikhega jab ACCESS POINT STATUS 'INSTALLED' ho
     const apStatus = String(getVal(selectedGPData, "ACCESS POINT STATUS")).trim().toUpperCase();
     if (apStatus === "INSTALLED") {
-      document.getElementById("gponSection").classList.remove("hidden");
       document.getElementById("apSection").classList.remove("hidden");
-      showSubmit = true;
     } else {
-      document.getElementById("gponSection").classList.add("hidden");
       document.getElementById("apSection").classList.add("hidden");
     }
 
+    // 3. FTTH Router Survey logic waisa hi rahega
     const ftthContainer = document.getElementById("ftthSubscribersList");
     ftthContainer.innerHTML = "";
     const ftthStatus = String(getVal(selectedGPData, "FTTH STATUS")).trim().toUpperCase();
@@ -579,7 +582,7 @@
           
           div.innerHTML = `<label>${displayLabel} - Router Installed?</label>
             <select id="sub_${i}_status" required>
-              <option value="">-- चुनें --</option>
+              <option value="">-- Chune --</option>
               <option value="YES">YES</option>
               <option value="NO">NO</option>
             </select>`;
@@ -598,7 +601,6 @@
       document.getElementById("submitBtn").classList.remove("hidden");
     }
   }
-
   function getVal(row, keyPrefix) {
     if (!row) return "";
     const cleanPrefix = keyPrefix.toLowerCase().trim();
